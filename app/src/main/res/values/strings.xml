@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">WeInfo</string>
+    <string name="net_error">网络错误</string>
+    <string name="conn_error">连接错误</string>
+    <string name="conn_timeout">连接超时</string>
+    <string name="parse_error">解析错误</string>
+    <string name="unknow_error">没有错误</string>
+</resources>
