@@ -1,35 +1,64 @@
 package com.example.weinfo.ui.activity;
 
+import android.Manifest;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.weinfo.MainActivity;
 import com.example.weinfo.R;
 import com.example.weinfo.base.BaseActivity;
-import com.example.weinfo.bean.MainBean;
+import com.example.weinfo.base.BaseApp;
 import com.example.weinfo.presenter.LoginPresenter;
-import com.example.weinfo.presenter.MainPresenter;
-import com.example.weinfo.util.ToastUtil;
+import com.example.weinfo.util.LogUtil;
 import com.example.weinfo.view.LoginView;
-import com.example.weinfo.view.MainView;
 import com.umeng.socialize.ShareAction;
+import com.umeng.socialize.UMAuthListener;
 import com.umeng.socialize.UMShareAPI;
 import com.umeng.socialize.UMShareListener;
 import com.umeng.socialize.bean.SHARE_MEDIA;
 import com.umeng.socialize.media.UMImage;
 
-import java.util.ArrayList;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
-public class LoginActivity extends BaseActivity<LoginPresenter> implements LoginView, View.OnClickListener {
-
+public class LoginActivity extends BaseActivity<LoginPresenter> implements LoginView {
     @BindView(R.id.btn_share)
     Button btnShare;
+    @BindView(R.id.et_name)
+    EditText etName;
+    @BindView(R.id.et_psw)
+    EditText etPsw;
+    @BindView(R.id.btn_login)
+    Button btnLogin;
+    @BindView(R.id.tv_registe)
+    TextView tvRegiste;
+    @BindView(R.id.btn_share1)
+    Button btnShare1;
+    @BindView(R.id.btn_share2)
+    Button btnShare2;
+    @BindView(R.id.btn_share3)
+    Button btnShare3;
+    @BindView(R.id.base_line)
+    View baseLine;
+    @BindView(R.id.btn_qq)
+    ImageView btnQq;
+    @BindView(R.id.btn_wx)
+    ImageView btnWx;
+    @BindView(R.id.btn_wb)
+    ImageView btnWb;
+    @BindView(R.id.third_login_desc)
+    TextView thirdLoginDesc;
 
     //注意onActivityResult不可在fragment中实现，
     // 如果在fragment中调用登录或分享，
@@ -47,16 +76,68 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Login
 
     @Override
     protected void initView() {
-        findViewById(R.id.btn_share).setOnClickListener(this);
+        initPers();
+    }
+
+    private void initPers() {
+        String[] pers = {
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.READ_EXTERNAL_STORAGE
+        };
+        ActivityCompat.requestPermissions(this, pers, 100);
     }
 
     @Override
     protected void initPresenter() {
+        mPresenter = new LoginPresenter();
+    }
 
+    @OnClick({R.id.btn_login, R.id.tv_registe, R.id.btn_qq, R.id.btn_wx, R.id.btn_wb})
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.btn_share:
+                shareBoard();
+                break;
+            case R.id.btn_share1:
+                share(SHARE_MEDIA.QQ);
+                break;
+            case R.id.btn_share2:
+                share(SHARE_MEDIA.WEIXIN);
+                break;
+            case R.id.btn_share3:
+                share(SHARE_MEDIA.SINA);
+                break;
+            case R.id.btn_qq:
+                login(SHARE_MEDIA.QQ);
+                break;
+            case R.id.btn_wx:
+                login(SHARE_MEDIA.WEIXIN);
+                break;
+            case R.id.btn_wb:
+                login(SHARE_MEDIA.SINA);
+                break;
+            case R.id.tv_registe:
+                //
+                RegisterActivity.startAct(this);
+                break;
+            case R.id.btn_login:
+                login();
+                break;
+        }
+    }
+
+    private void login() {
+        String name = etName.getText().toString().trim();
+        String psw = etPsw.getText().toString().trim();
+        if (TextUtils.isEmpty(name) || TextUtils.isEmpty(psw)) {
+            showToast(BaseApp.getRes().getString(R.string.register_name_or_psw_not_null));
+            return;
+        }
+        mPresenter.login(name, psw);
     }
 
     private void shareBoard() {
-        UMImage image = new UMImage(this,R.drawable.i);
+        UMImage image = new UMImage(this, R.drawable.i);
         new ShareAction(LoginActivity.this)
                 .withText("hello")//分享文本
                 .withMedia(image)//分享媒体消息
@@ -107,13 +188,83 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Login
     protected int getLayout() {
         return R.layout.activity_login;
     }
+
     @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.btn_share:
-                shareBoard();
-                break;
+    public void loginSuccess() {
+        showToast(BaseApp.getRes().getString(R.string.login_success));
+        MainActivity.startAct(this);
+        //关闭当前页面
+        finish();
+    }
+
+
+    private void login(SHARE_MEDIA type) {
+        UMShareAPI.get(this).getPlatformInfo(this, type, authListener);
+    }
+
+    UMAuthListener authListener = new UMAuthListener() {
+        /**
+         * @desc 授权开始的回调
+         * @param platform 平台名称
+         */
+        @Override
+        public void onStart(SHARE_MEDIA platform) {
+
         }
+
+        /**
+         * @desc 授权成功的回调
+         * @param platform 平台名称
+         * @param action 行为序号，开发者用不上
+         * @param data 用户资料返回
+         */
+        @Override
+        public void onComplete(SHARE_MEDIA platform, int action, Map<String, String> data) {
+            showToast("成功了");
+            print(data);
+        }
+
+        /**
+         * @desc 授权失败的回调
+         * @param platform 平台名称
+         * @param action 行为序号，开发者用不上
+         * @param t 错误原因
+         */
+        @Override
+        public void onError(SHARE_MEDIA platform, int action, Throwable t) {
+            showToast("失败：" + t.getMessage());
+        }
+
+        /**
+         * @desc 授权取消的回调
+         * @param platform 平台名称
+         * @param action 行为序号，开发者用不上
+         */
+        @Override
+        public void onCancel(SHARE_MEDIA platform, int action) {
+            showToast("取消了");
+        }
+    };
+
+    private void print(Map<String, String> data) {
+        //map遍历    2种：
+        //data.keySet();所有键的集合
+        //data.entrySet();键值对的集合
+        for (Map.Entry<String, String> entry : data.entrySet()) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+            LogUtil.print(key + ":" + value);
+        }
+    }
+
+    private void share(SHARE_MEDIA type) {
+        UMImage image = new UMImage(this, R.drawable.i);
+        new ShareAction(LoginActivity.this)
+                .setPlatform(type)//传入平台
+                .withText("hello")//分享内容
+                .withMedia(image)
+                .setCallback(shareListener)//回调监听器
+                .share();
     }
 
     @Override

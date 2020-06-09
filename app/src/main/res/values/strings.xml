@@ -5,4 +5,9 @@
     <string name="conn_timeout">连接超时</string>
     <string name="parse_error">解析错误</string>
     <string name="unknow_error">没有错误</string>
+    <string name="register_name_or_psw_not_null" >用户名或密码不能为空</string>
+    <string name="register_success">注册成功</string>
+    <string name="login_success">登录成功</string>
+    <string name="login_fail">登录失败</string>
+    <string name="register">注册</string>
 </resources>

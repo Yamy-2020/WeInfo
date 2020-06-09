@@ -18,6 +18,11 @@ public class BaseModel {
     }
 
     public void destory() {
-        compositeDisposable.clear();
+        //销毁网络请求并且取消订阅关系
+        if (compositeDisposable != null && compositeDisposable.size()>0){
+            //1.调用容器中的所有的Disposable对象dispose();
+            //2.会将容器清空
+            compositeDisposable.clear();
+        }
     }
 }

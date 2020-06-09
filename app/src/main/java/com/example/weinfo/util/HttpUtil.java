@@ -3,6 +3,7 @@ package com.example.weinfo.util;
 import android.util.Log;
 import com.example.weinfo.base.Constants;
 import com.example.weinfo.net.ApiService;
+import com.example.weinfo.net.LoginService;
 
 import java.io.File;
 import java.io.IOException;
@@ -227,6 +228,19 @@ public class HttpUtil {
         return mApiService;
     }
 
+    volatile LoginService mLoginService;
+    public LoginService getLoginService(){
+        if (mLoginService == null){
+            synchronized (HttpUtil.class){
+                if (mLoginService == null){
+                    mLoginService = mRetrofitBuilder.baseUrl(LoginService.sUrl)
+                            .build()
+                            .create(LoginService.class);
+                }
+            }
+        }
+        return mLoginService;
+    }
     //简单的日志拦截器
     class SimpleLogInterceptor implements Interceptor {
         @Override

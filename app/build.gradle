@@ -56,6 +56,9 @@ dependencies {
     implementation 'jp.co.cyberagent.android.gpuimage:gpuimage-library:1.4.1'//图形变换
     implementation 'com.android.support:design:28.0.0'                           //侧滑
     implementation 'com.android.support:recyclerview-v7:28.0.0'            //rv
+    implementation 'com.youth.banner:banner:1.4.10'                              //banner
+    implementation 'com.scwang.smartrefresh:SmartRefreshLayout:1.1.0'//下拉刷新
+    implementation 'com.github.dfqin:grantor:2.5'                                    //打电话
     implementation 'com.jakewharton:butterknife:8.8.1'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
 }

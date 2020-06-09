@@ -14,7 +14,7 @@ import butterknife.ButterKnife;
  * 创建时间：2020/6/6   16:34
  **/
 public abstract class BaseActivity<P extends BasePresenter> extends AppCompatActivity implements BaseView {
-    public P mPresenter;
+    protected P mPresenter;
     private LoadingDialog mLoadingDialog;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -35,6 +35,16 @@ public abstract class BaseActivity<P extends BasePresenter> extends AppCompatAct
     protected abstract void initPresenter();
 
     protected abstract int getLayout();
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        //界面销毁,取消网络请求
+        //解除v层和P的关联
+        mPresenter.destroy();
+        mPresenter = null;
+        hideLoading();
+    }
     @Override
     public void showLoading() {
         if (mLoadingDialog == null) {
