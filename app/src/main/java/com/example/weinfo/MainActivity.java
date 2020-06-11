@@ -3,40 +3,62 @@ package com.example.weinfo;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.NavigationView;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.Toolbar;
+import android.view.View;
+import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.weinfo.adapter.MainAdapter;
 import com.example.weinfo.base.BaseActivity;
-import com.example.weinfo.bean.MainBean;
 import com.example.weinfo.presenter.MainPresenter;
+import com.example.weinfo.ui.activity.ChatActivity;
+import com.example.weinfo.ui.fragment.DiscoveryFragment;
 import com.example.weinfo.view.MainView;
+import com.hyphenate.chat.EMClient;
+import com.hyphenate.chat.EMConversation;
+import com.hyphenate.easeui.EaseConstant;
+import com.hyphenate.easeui.domain.EaseUser;
+import com.hyphenate.easeui.ui.EaseContactListFragment;
+import com.hyphenate.easeui.ui.EaseConversationListFragment;
+import com.hyphenate.exceptions.HyphenateException;
 
-import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class MainActivity extends BaseActivity<MainPresenter> implements MainView {
-
-    @BindView(R.id.rv)
-    RecyclerView rv;
-    @BindView(R.id.toolbar)
-    Toolbar toolbar;
-    @BindView(R.id.ll)
-    LinearLayout ll;
-    @BindView(R.id.nv)
-    NavigationView nv;
-    @BindView(R.id.dl)
-    DrawerLayout dl;
-    private ArrayList<MainBean.DataBean.DatasBean> list;
-    private MainAdapter adapter;
+    @BindView(R.id.btn_conversation)
+    Button btnConversation;
+    @BindView(R.id.unread_msg_number)
+    TextView unreadMsgNumber;
+    @BindView(R.id.btn_container_conversation)
+    RelativeLayout btnContainerConversation;
+    @BindView(R.id.btn_address_list)
+    Button btnAddressList;
+    @BindView(R.id.btn_container_address_list)
+    RelativeLayout btnContainerAddressList;
+    @BindView(R.id.btn_setting)
+    Button btnSetting;
+    @BindView(R.id.btn_container_setting)
+    RelativeLayout btnContainerSetting;
+    @BindView(R.id.main_bottom)
+    LinearLayout mainBottom;
+    @BindView(R.id.fragment_container)
+    RelativeLayout fragmentContainer;
+    private EaseConversationListFragment conversationListFragment;
+    private EaseContactListFragment contactListFragment;
+    private DiscoveryFragment discoveryFragment;
+    private Fragment[] fragments;
+    private Button[] mTabs;
+    private int index;
+    private int currentTabIndex;
 
     public static void startAct(Context context) {
         Intent intent = new Intent(context, MainActivity.class);
@@ -50,13 +72,45 @@ public class MainActivity extends BaseActivity<MainPresenter> implements MainVie
 
     @Override
     protected void initView() {
-        toolbar.setTitle("首页");
-        setSupportActionBar(toolbar);
-        rv.setLayoutManager(new LinearLayoutManager(this));
-        rv.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        list = new ArrayList<>();
-        adapter = new MainAdapter(this, list);
-        rv.setAdapter(adapter);
+        mTabs = new Button[3];
+        mTabs[0] = btnConversation;
+        mTabs[1] = btnAddressList;
+        mTabs[2] = btnSetting;
+        // set first tab as selected
+        mTabs[0].setSelected(true);
+
+        //会话的fragment
+        conversationListFragment = new EaseConversationListFragment();
+        //联系人的fragmnet
+        contactListFragment = new EaseContactListFragment();
+
+        discoveryFragment = new DiscoveryFragment();
+        //设置联系人
+        //contactListFragment.setContactsMap(getContacts());
+        conversationListFragment.setConversationListItemClickListener(new EaseConversationListFragment.EaseConversationListItemClickListener() {
+
+            @Override
+            public void onListItemClicked(EMConversation conversation) {
+                startActivity(new Intent(MainActivity.this, ChatActivity.class).putExtra(EaseConstant.EXTRA_USER_ID, conversation.conversationId()));
+            }
+        });
+        contactListFragment.setContactListItemClickListener(new EaseContactListFragment.EaseContactListItemClickListener() {
+
+            @Override
+            public void onListItemClicked(EaseUser user) {
+                startActivity(new Intent(MainActivity.this, ChatActivity.class).putExtra(EaseConstant.EXTRA_USER_ID, user.getUsername()));
+            }
+        });
+        fragments = new Fragment[]{conversationListFragment, contactListFragment, discoveryFragment};
+        // add and show first fragment
+        getSupportFragmentManager().beginTransaction()
+                .add(R.id.fragment_container, conversationListFragment)
+                .add(R.id.fragment_container, contactListFragment)
+                .add(R.id.fragment_container, discoveryFragment)
+                .hide(contactListFragment)
+                .hide(discoveryFragment)
+                .show(conversationListFragment)
+                .commit();
     }
 
     @Override
@@ -69,14 +123,45 @@ public class MainActivity extends BaseActivity<MainPresenter> implements MainVie
         return R.layout.activity_main;
     }
 
+    @OnClick({R.id.btn_conversation, R.id.btn_address_list, R.id.btn_setting})
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.btn_conversation:
+                index = 0;
+                break;
+            case R.id.btn_address_list:
+                index = 1;
+                break;
+            case R.id.btn_setting:
+                index = 2;
+                break;
+        }
+        if (currentTabIndex != index) {
+            FragmentTransaction trx = getSupportFragmentManager().beginTransaction();
+            trx.hide(fragments[currentTabIndex]);
+            if (!fragments[index].isAdded()) {
+                trx.add(R.id.fragment_container, fragments[index]);
+            }
+            trx.show(fragments[index]).commit();
+        }
+        mTabs[currentTabIndex].setSelected(false);
+        // set current tab as selected.
+        mTabs[index].setSelected(true);
+        currentTabIndex = index;
+    }
+
     @Override
     public void showToast(String string) {
         Toast.makeText(this, string, Toast.LENGTH_SHORT).show();
     }
 
     @Override
-    public void setData(ArrayList<MainBean.DataBean.DatasBean> datasBeans) {
-        list.addAll(datasBeans);
-        adapter.notifyDataSetChanged();
+    public void setData(final Map<String, EaseUser> contacts) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                contactListFragment.setContactsMap(contacts);
+            }
+        });
     }
 }

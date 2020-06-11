@@ -56,6 +56,6 @@ public interface LoginService {
     @FormUrlEncoded
     Flowable<RegisterBean> register(@Field("userid") String userid,
                                     @Field("password") String psd,
-                                    @Field("accessToken") String accessToken,
+                                    @Field("accesstoken") String accessToken,
                                     @Field("typeid") String typeid);
 }

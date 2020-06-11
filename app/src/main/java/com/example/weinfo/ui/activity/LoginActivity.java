@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
@@ -16,15 +17,22 @@ import com.example.weinfo.MainActivity;
 import com.example.weinfo.R;
 import com.example.weinfo.base.BaseActivity;
 import com.example.weinfo.base.BaseApp;
+import com.example.weinfo.base.Constants;
+import com.example.weinfo.bean.FinishEvent;
 import com.example.weinfo.presenter.LoginPresenter;
 import com.example.weinfo.util.LogUtil;
+import com.example.weinfo.util.SpUtil;
 import com.example.weinfo.view.LoginView;
+import com.hyphenate.chat.EMClient;
 import com.umeng.socialize.ShareAction;
 import com.umeng.socialize.UMAuthListener;
 import com.umeng.socialize.UMShareAPI;
 import com.umeng.socialize.UMShareListener;
 import com.umeng.socialize.bean.SHARE_MEDIA;
 import com.umeng.socialize.media.UMImage;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.util.Map;
 
@@ -59,6 +67,8 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Login
     ImageView btnWb;
     @BindView(R.id.third_login_desc)
     TextView thirdLoginDesc;
+    @BindView(R.id.toolbar)
+    Toolbar toolbar;
 
     //注意onActivityResult不可在fragment中实现，
     // 如果在fragment中调用登录或分享，
@@ -76,13 +86,45 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Login
 
     @Override
     protected void initView() {
+        //注册EventBus
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this);
+        }
+        toolbar.setTitle("登录");
+        setSupportActionBar(toolbar);
+        //怎么判断登录过没有，通过本地用户信息判断
+        //在登录的时候把用户信息保存下来
+        //取用户信息
+//        String token = (String) SpUtil.getParam(Constants.TOKEN, "");
+//        if (!TextUtils.isEmpty(token)) {
+//            MainActivity.startAct(this);
+//            finish();
+//        }
+        if (EMClient.getInstance().isLoggedInBefore()){
+            loginSuccess();
+        }
         initPers();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
+    }
+
+    @Subscribe()
+    public void onReceiveFinishEvent(FinishEvent finishEvent) {
+        finish();
     }
 
     private void initPers() {
         String[] pers = {
                 Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Manifest.permission.READ_EXTERNAL_STORAGE
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.CAMERA,
+                Manifest.permission.RECORD_AUDIO,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.READ_PHONE_STATE
         };
         ActivityCompat.requestPermissions(this, pers, 100);
     }
@@ -109,16 +151,22 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Login
                 break;
             case R.id.btn_qq:
                 login(SHARE_MEDIA.QQ);
+                String qqUnique="qq2577385715";
+                mPresenter.loginAccess(SHARE_MEDIA.QQ, qqUnique);
                 break;
             case R.id.btn_wx:
                 login(SHARE_MEDIA.WEIXIN);
+                String wxUnique="wx2577385715";
+                mPresenter.loginAccess(SHARE_MEDIA.QQ, wxUnique);
                 break;
             case R.id.btn_wb:
                 login(SHARE_MEDIA.SINA);
+                String wbUnique="wb2577385715";
+                mPresenter.loginAccess(SHARE_MEDIA.QQ, wbUnique);
                 break;
             case R.id.tv_registe:
                 //
-                RegisterActivity.startAct(this);
+                RegisterActivity.startAct(this, RegisterActivity.TYPE_REGISTER);
                 break;
             case R.id.btn_login:
                 login();
@@ -191,10 +239,15 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Login
 
     @Override
     public void loginSuccess() {
-        showToast(BaseApp.getRes().getString(R.string.login_success));
         MainActivity.startAct(this);
         //关闭当前页面
         finish();
+    }
+
+    //跳转到完善资料页面
+    @Override
+    public void inputUserInfo(String uid, String finalTypeId) {
+        RegisterActivity.startAct(this, RegisterActivity.TYPE_INFO, uid, finalTypeId);
     }
 
 
@@ -222,6 +275,9 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Login
         public void onComplete(SHARE_MEDIA platform, int action, Map<String, String> data) {
             showToast("成功了");
             print(data);
+            //data   里面有所有用户在三方平台的信息
+            //拿唯一标识判断是否创建过用户
+            mPresenter.loginAccess(platform, data.get("uid"));
         }
 
         /**
@@ -265,10 +321,5 @@ public class LoginActivity extends BaseActivity<LoginPresenter> implements Login
                 .withMedia(image)
                 .setCallback(shareListener)//回调监听器
                 .share();
-    }
-
-    @Override
-    public void showToast(String string) {
-        Toast.makeText(this, string, Toast.LENGTH_SHORT).show();
     }
 }

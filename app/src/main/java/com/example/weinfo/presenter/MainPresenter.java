@@ -5,8 +5,10 @@ import com.example.weinfo.bean.MainBean;
 import com.example.weinfo.model.MainModel;
 import com.example.weinfo.net.CallBack;
 import com.example.weinfo.view.MainView;
+import com.hyphenate.easeui.domain.EaseUser;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * 项目名称：WeInfo
@@ -25,10 +27,10 @@ public class MainPresenter extends BasePresenter<MainView> {
 
     @Override
     public void initData() {
-        mainModel.initData(new CallBack<ArrayList<MainBean.DataBean.DatasBean>>() {
+        mainModel.initData(new CallBack<Map<String, EaseUser>>() {
             @Override
-            public void onSuccess(ArrayList<MainBean.DataBean.DatasBean> datasBeans) {
-                mView.setData(datasBeans);
+            public void onSuccess(Map<String, EaseUser> stringEaseUserMap) {
+                mView.setData(stringEaseUserMap);
             }
 
             @Override

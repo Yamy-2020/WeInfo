@@ -4,8 +4,18 @@ import com.example.weinfo.base.BaseModel;
 import com.example.weinfo.bean.MainBean;
 import com.example.weinfo.net.ApiService;
 import com.example.weinfo.net.CallBack;
+import com.example.weinfo.util.ThreadManager;
+import com.hyphenate.chat.EMClient;
+import com.hyphenate.chat.EMCursorResult;
+import com.hyphenate.chat.EMGroup;
+import com.hyphenate.chat.EMGroupInfo;
+import com.hyphenate.easeui.domain.EaseUser;
+import com.hyphenate.exceptions.HyphenateException;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -21,37 +31,41 @@ import retrofit2.converter.gson.GsonConverterFactory;
  * 创建时间：2020/6/6   16:42
  **/
 public class MainModel extends BaseModel {
-
-    public void initData(final CallBack<ArrayList<MainBean.DataBean.DatasBean>> callBack) {
-        new Retrofit.Builder()
-                .baseUrl(ApiService.url)
-                .addConverterFactory(GsonConverterFactory.create())
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .build()
-                .create(ApiService.class)
-                .getData()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<MainBean>() {
+    //获取联系人+群
+    public void initData(final CallBack<Map<String, EaseUser>> callBack) {
+        ThreadManager.getInstance()
+                .execute(new Runnable() {
                     @Override
-                    public void onSubscribe(Disposable d) {
-
-                    }
-
-                    @Override
-                    public void onNext(MainBean mainBean) {
-                        callBack.onSuccess((ArrayList<MainBean.DataBean.DatasBean>) mainBean.getData().getDatas());
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        callBack.onFail(e.getMessage());
-                    }
-
-                    @Override
-                    public void onComplete() {
+                    public void run() {
+                        try {
+                            //获取联系人
+                            List<String> usernames = EMClient.getInstance().contactManager().getAllContactsFromServer();
+                            //获取群
+                            //从服务器获取自己加入的和创建的群组列表，此api获取的群组sdk会自动保存到内存和db。
+                            List<EMGroup> grouplist = EMClient.getInstance().groupManager().getJoinedGroupsFromServer();//需异步处理
+                            //从本地加载群组列表
+//                            List<EMGroup> grouplist = EMClient.getInstance().groupManager().getAllGroups();
+                            //添加联系人
+                            HashMap<String, EaseUser> contacts = new HashMap<>();
+                            for (int i = 0; i <usernames.size() ; i++) {
+                                EaseUser user = new EaseUser(usernames.get(i));
+                                contacts.put(usernames.get(i),user);
+                            }
+                            //添加群
+                            for (int i = 0; i <grouplist.size() ; i++) {
+                                String name = grouplist.get(i).getGroupName();
+                                String id = grouplist.get(i).getGroupId();
+                                EaseUser user = new EaseUser(name);
+                                contacts.put(id,user);
+                            }
+                            callBack.onSuccess(contacts);
+                        } catch (HyphenateException e) {
+                            e.printStackTrace();
+                            callBack.onFail(e.getMessage());
+                        }
 
                     }
                 });
+
     }
 }

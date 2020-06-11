@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
+import com.example.weinfo.util.ToastUtil;
 import com.example.weinfo.widget.LoadingDialog;
 
 import butterknife.ButterKnife;
@@ -44,6 +45,16 @@ public abstract class BaseActivity<P extends BasePresenter> extends AppCompatAct
         mPresenter.destroy();
         mPresenter = null;
         hideLoading();
+    }
+    @Override
+    public void showToast(final String msg) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ToastUtil.showToastShort(msg);
+            }
+        });
+
     }
     @Override
     public void showLoading() {

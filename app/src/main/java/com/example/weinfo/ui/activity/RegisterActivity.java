@@ -10,11 +10,16 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.example.weinfo.MainActivity;
 import com.example.weinfo.R;
 import com.example.weinfo.base.BaseActivity;
 import com.example.weinfo.base.BaseApp;
+import com.example.weinfo.base.Constants;
+import com.example.weinfo.bean.FinishEvent;
 import com.example.weinfo.presenter.RegisterPresenter;
 import com.example.weinfo.view.RegisterView;
+
+import org.greenrobot.eventbus.EventBus;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -32,10 +37,24 @@ public class RegisterActivity extends BaseActivity<RegisterPresenter> implements
     Button btnRegister;
     @BindView(R.id.toolbar)
     Toolbar toolbar;
+    public static final int TYPE_REGISTER = 0;
+    public static final int TYPE_INFO = 1;
+    private int type;
+    private String uid;
+    private String typeId;
 
     //启动activity全用这个方法启动，要明确参数
-    public static void startAct(Context context) {
+    public static void startAct(Context context, int type) {
         Intent intent = new Intent(context, RegisterActivity.class);
+        intent.putExtra(Constants.TYPE, type);
+        context.startActivity(intent);
+    }
+
+    public static void startAct(Context context, int type, String uid, String typeId) {
+        Intent intent = new Intent(context, RegisterActivity.class);
+        intent.putExtra(Constants.TYPE, type);
+        intent.putExtra(Constants.USERID, uid);
+        intent.putExtra(Constants.TYPE_ID, typeId);
         context.startActivity(intent);
     }
 
@@ -46,7 +65,14 @@ public class RegisterActivity extends BaseActivity<RegisterPresenter> implements
 
     @Override
     protected void initView() {
-        toolbar.setTitle(R.string.register);
+        type = getIntent().getIntExtra(Constants.TYPE, TYPE_REGISTER);
+        uid = getIntent().getStringExtra(Constants.USERID);
+        typeId = getIntent().getStringExtra(Constants.TYPE_ID);
+        if (type == TYPE_REGISTER) {
+            toolbar.setTitle(R.string.register);
+        } else {
+            toolbar.setTitle(R.string.input_info);
+        }
         setSupportActionBar(toolbar);
     }
 
@@ -84,11 +110,26 @@ public class RegisterActivity extends BaseActivity<RegisterPresenter> implements
             showToast(BaseApp.getRes().getString(R.string.register_name_or_psw_not_null));
             return;
         }
-        mPresenter.register(name, psw);
+        if (type == TYPE_REGISTER) {
+            mPresenter.register(name, psw);
+        } else {
+            mPresenter.registerAccess(name, psw, uid, typeId);
+        }
     }
+
     @Override
     public void registerSuccess() {
         //注册成功后只需要退出当前注册页面即可
         finish();
+    }
+
+    @Override
+    public void loginSuccess() {
+        //完善资料后，登录成功，结束当前页面,跳转到主页面
+        showToast(BaseApp.getRes().getString(R.string.login_success));
+        MainActivity.startAct(this);
+        finish();
+        //登录页面也应该finish();   (EventBus，广播，handler)
+        EventBus.getDefault().post(new FinishEvent());
     }
 }
