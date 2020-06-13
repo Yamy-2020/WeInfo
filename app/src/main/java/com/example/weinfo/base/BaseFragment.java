@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.weinfo.util.ToastUtil;
 import com.example.weinfo.widget.LoadingDialog;
 
 import butterknife.ButterKnife;
@@ -55,6 +56,15 @@ public abstract class BaseFragment<P extends BasePresenter> extends Fragment imp
         super.onDestroy();
         mPresenter.destroy();
         bind.unbind(); //解除butterknife绑定
+    }
+    @Override
+    public void showToast(final String msg) {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ToastUtil.showToastShort(msg);
+            }
+        });
     }
     @Override
     public void showLoading() {

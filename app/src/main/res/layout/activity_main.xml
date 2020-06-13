@@ -78,12 +78,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@drawable/em_main_bottom_item_bg"
-                android:drawableTop="@drawable/em_tab_setting_bg"
+                android:drawableTop="@drawable/em_settings_normal"
                 android:onClick="onTabClicked"
                 android:paddingTop="7dip"
                 android:paddingBottom="2dip"
                 android:scaleType="matrix"
-                android:text="@string/setting"
+                android:text="发现"
                 android:textColor="@color/em_main_botton_text_color"
                 android:textSize="12sp" />
 

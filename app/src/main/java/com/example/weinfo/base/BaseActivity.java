@@ -3,6 +3,7 @@ package com.example.weinfo.base;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.view.WindowManager;
 
 import com.example.weinfo.util.ToastUtil;
 import com.example.weinfo.widget.LoadingDialog;
@@ -21,6 +22,8 @@ public abstract class BaseActivity<P extends BasePresenter> extends AppCompatAct
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(getLayout());
+        //避免进入页面软键盘弹出，底部控件被顶起
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         ButterKnife.bind(this);
         initPresenter();
         if (mPresenter != null) {

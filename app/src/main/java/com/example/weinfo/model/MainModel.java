@@ -9,6 +9,8 @@ import com.hyphenate.chat.EMClient;
 import com.hyphenate.chat.EMCursorResult;
 import com.hyphenate.chat.EMGroup;
 import com.hyphenate.chat.EMGroupInfo;
+import com.hyphenate.chat.EMMessage;
+import com.hyphenate.easeui.EaseConstant;
 import com.hyphenate.easeui.domain.EaseUser;
 import com.hyphenate.exceptions.HyphenateException;
 
@@ -49,6 +51,8 @@ public class MainModel extends BaseModel {
                             HashMap<String, EaseUser> contacts = new HashMap<>();
                             for (int i = 0; i <usernames.size() ; i++) {
                                 EaseUser user = new EaseUser(usernames.get(i));
+                                //单聊
+                                user.setChatType(EaseConstant.CHATTYPE_SINGLE);
                                 contacts.put(usernames.get(i),user);
                             }
                             //添加群
@@ -56,6 +60,9 @@ public class MainModel extends BaseModel {
                                 String name = grouplist.get(i).getGroupName();
                                 String id = grouplist.get(i).getGroupId();
                                 EaseUser user = new EaseUser(name);
+                                //群聊
+                                user.setChatType(EaseConstant.CHATTYPE_GROUP);
+                                user.setGroupId(id);
                                 contacts.put(id,user);
                             }
                             callBack.onSuccess(contacts);

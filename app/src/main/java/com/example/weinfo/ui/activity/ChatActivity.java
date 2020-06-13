@@ -24,6 +24,7 @@ public class ChatActivity extends EaseBaseActivity {
     public static ChatActivity activityInstance;
     private EaseChatFragment chatFragment;
     String toChatUsername;
+    private int chatType;
 
     @Override
     protected void onCreate(Bundle arg0) {
@@ -32,6 +33,7 @@ public class ChatActivity extends EaseBaseActivity {
         activityInstance = this;
         //user or group id
         toChatUsername = getIntent().getExtras().getString(EaseConstant.EXTRA_USER_ID);
+        chatType = getIntent().getIntExtra(EaseConstant.EXTRA_CHAT_TYPE,EaseConstant.CHATTYPE_SINGLE);
         chatFragment = new EaseChatFragment();
         //set arguments
         chatFragment.setArguments(getIntent().getExtras());

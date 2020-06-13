@@ -20,6 +20,7 @@ import com.example.weinfo.ui.fragment.DiscoveryFragment;
 import com.example.weinfo.view.MainView;
 import com.hyphenate.chat.EMClient;
 import com.hyphenate.chat.EMConversation;
+import com.hyphenate.chat.EMMessage;
 import com.hyphenate.easeui.EaseConstant;
 import com.hyphenate.easeui.domain.EaseUser;
 import com.hyphenate.easeui.ui.EaseContactListFragment;
@@ -91,14 +92,32 @@ public class MainActivity extends BaseActivity<MainPresenter> implements MainVie
 
             @Override
             public void onListItemClicked(EMConversation conversation) {
-                startActivity(new Intent(MainActivity.this, ChatActivity.class).putExtra(EaseConstant.EXTRA_USER_ID, conversation.conversationId()));
+//                EMConversation.EMConversationType type = conversation.getType();
+                Intent intent = new Intent(MainActivity.this, ChatActivity.class);
+                if (conversation.isGroup()){
+                    //群聊
+                    intent.putExtra(EaseConstant.EXTRA_USER_ID, conversation.conversationId());
+                    intent.putExtra(EaseConstant.EXTRA_CHAT_TYPE,EaseConstant.CHATTYPE_GROUP);
+                }else{
+                    //单聊
+                    intent.putExtra(EaseConstant.EXTRA_USER_ID, conversation.conversationId());
+                    intent.putExtra(EaseConstant.EXTRA_CHAT_TYPE,EaseConstant.CHATTYPE_SINGLE);
+                }
+                startActivity(intent);
             }
         });
         contactListFragment.setContactListItemClickListener(new EaseContactListFragment.EaseContactListItemClickListener() {
-
             @Override
             public void onListItemClicked(EaseUser user) {
-                startActivity(new Intent(MainActivity.this, ChatActivity.class).putExtra(EaseConstant.EXTRA_USER_ID, user.getUsername()));
+                Intent intent = new Intent(MainActivity.this, ChatActivity.class);
+                if (user.getChatType()== EaseConstant.CHATTYPE_SINGLE){
+                    intent.putExtra(EaseConstant.EXTRA_USER_ID, user.getUsername());
+                    intent.putExtra(EaseConstant.EXTRA_CHAT_TYPE,user.getChatType());
+                }else if (user.getChatType()==EaseConstant.CHATTYPE_GROUP){
+                    intent.putExtra(EaseConstant.EXTRA_USER_ID, user.getGroupId());
+                    intent.putExtra(EaseConstant.EXTRA_CHAT_TYPE,user.getChatType());
+                }
+                startActivity(intent);
             }
         });
         fragments = new Fragment[]{conversationListFragment, contactListFragment, discoveryFragment};

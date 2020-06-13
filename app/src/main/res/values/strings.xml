@@ -15,4 +15,6 @@
     <string name="register_fail">注册失败</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="add_success">添加成功</string>
+    <string name="add_fail">添加失败</string>
 </resources>
