@@ -63,8 +63,6 @@ public class DiscoveryFragment extends BaseFragment<DiscoveryPresenter> implemen
     TextView tvTencent;
     @BindView(R.id.cl_tencent)
     ConstraintLayout clTencent;
-    @BindView(R.id.btn_logout)
-    Button btnLogout;
     Unbinder unbinder;
 
     @Override
@@ -93,7 +91,7 @@ public class DiscoveryFragment extends BaseFragment<DiscoveryPresenter> implemen
         unbinder.unbind();
     }
 
-    @OnClick({R.id.iv_add_friend, R.id.cl_add, R.id.iv_create_group, R.id.cl_create_group, R.id.iv_add_group, R.id.cl_add_group, R.id.btn_logout})
+    @OnClick({R.id.iv_add_friend, R.id.cl_add, R.id.iv_create_group, R.id.cl_create_group, R.id.iv_add_group, R.id.cl_add_group})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.iv_add_friend:
@@ -110,8 +108,6 @@ public class DiscoveryFragment extends BaseFragment<DiscoveryPresenter> implemen
             case R.id.cl_it_info:
                 break;
             case R.id.cl_tencent:
-                break;
-            case R.id.btn_logout:
                 break;
         }
     }

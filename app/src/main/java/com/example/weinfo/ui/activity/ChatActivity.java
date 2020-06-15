@@ -17,6 +17,7 @@ import com.hyphenate.easeui.EaseConstant;
 import com.hyphenate.easeui.ui.EaseBaseActivity;
 import com.hyphenate.easeui.ui.EaseChatFragment;
 import com.hyphenate.easeui.widget.chatrow.EaseCustomChatRowProvider;
+import com.hyphenate.exceptions.HyphenateException;
 
 import java.io.IOException;
 
@@ -64,6 +65,7 @@ public class ChatActivity extends EaseBaseActivity {
             public boolean onMessageBubbleClick(EMMessage message) {
                 EMMessageBody body = message.getBody();
                 if (body instanceof EMVoiceMessageBody){
+                    //语音消息,点击的时候播放语音
                     EMVoiceMessageBody voiceMessageBody = (EMVoiceMessageBody) body;
                     String localUrl = voiceMessageBody.getLocalUrl();
 
@@ -71,8 +73,18 @@ public class ChatActivity extends EaseBaseActivity {
                         startVoice(localUrl);
                     }
                 }else if (body instanceof EMTextMessageBody){
-                    //共享位置得扩展消息
-                    chatFragment.go2ShareLocation();
+                    try {
+                        //发送共享位置消息的时候发送的是文本消息
+                        //里面携带了一个share的属性,通过这个属性判断是普通文本还是共享位置
+                        boolean share = message.getBooleanAttribute("share");
+                        if (share){
+                            //共享位置得扩展消息
+                            chatFragment.go2ShareLocation();
+                        }
+                    } catch (HyphenateException e) {
+                        e.printStackTrace();
+                    }
+
                 }
                 return false;
             }
