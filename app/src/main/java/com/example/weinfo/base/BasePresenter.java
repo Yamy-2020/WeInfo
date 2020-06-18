@@ -33,6 +33,4 @@ public abstract class BasePresenter<V extends BaseView> {
             baseModel.destory();
         }
     }
-
-    public abstract void initData();
 }

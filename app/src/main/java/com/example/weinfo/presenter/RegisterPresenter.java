@@ -32,11 +32,6 @@ public class RegisterPresenter extends BasePresenter<RegisterView> {
         models.add(registerModel);
     }
 
-    @Override
-    public void initData() {
-
-    }
-
     public void register(String name, String psw) {
 //        registerModel.register(name, psw, new CallBack<RegisterBean>() {
 //            @Override

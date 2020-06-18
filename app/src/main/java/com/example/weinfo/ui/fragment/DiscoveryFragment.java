@@ -1,25 +1,21 @@
 package com.example.weinfo.ui.fragment;
 
-import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
 import android.text.TextUtils;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.weinfo.R;
 import com.example.weinfo.base.BaseFragment;
 import com.example.weinfo.presenter.DiscoveryPresenter;
+import com.example.weinfo.ui.activity.ItInfoActivity;
+import com.example.weinfo.ui.activity.ZhiHuActivity;
 import com.example.weinfo.view.DiscoveryView;
 import com.hyphenate.easeui.widget.EaseTitleBar;
 
 import butterknife.BindView;
-import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
 
@@ -91,7 +87,7 @@ public class DiscoveryFragment extends BaseFragment<DiscoveryPresenter> implemen
         unbinder.unbind();
     }
 
-    @OnClick({R.id.iv_add_friend, R.id.cl_add, R.id.iv_create_group, R.id.cl_create_group, R.id.iv_add_group, R.id.cl_add_group})
+    @OnClick({R.id.iv_add_friend, R.id.iv_create_group, R.id.iv_add_group, R.id.cl_zhihu, R.id.cl_it_info, R.id.cl_tencent})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.iv_add_friend:
@@ -104,8 +100,10 @@ public class DiscoveryFragment extends BaseFragment<DiscoveryPresenter> implemen
                 addGroup();
                 break;
             case R.id.cl_zhihu:
+                ZhiHuActivity.startAct(getContext());
                 break;
             case R.id.cl_it_info:
+                ItInfoActivity.startAct(getContext());
                 break;
             case R.id.cl_tencent:
                 break;

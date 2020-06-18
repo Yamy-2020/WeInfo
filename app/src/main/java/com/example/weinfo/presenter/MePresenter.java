@@ -17,8 +17,4 @@ public class MePresenter extends BasePresenter {
 
     }
 
-    @Override
-    public void initData() {
-
-    }
 }

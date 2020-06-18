@@ -51,12 +51,12 @@ public abstract class BaseFragment<P extends BasePresenter> extends Fragment imp
 
     protected abstract void initView(View view);
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        mPresenter.destroy();
-        bind.unbind(); //解除butterknife绑定
-    }
+//    @Override
+//    public void onDestroy() {
+//        super.onDestroy();
+//        mPresenter.destroy();
+//        bind.unbind(); //解除butterknife绑定
+//    }
     @Override
     public void showToast(final String msg) {
         getActivity().runOnUiThread(new Runnable() {

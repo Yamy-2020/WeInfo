@@ -18,12 +18,6 @@ public class DiscoveryPresenter extends BasePresenter {
         discoveryModel = new DiscoveryModel();
         models.add(discoveryModel);
     }
-
-    @Override
-    public void initData() {
-
-    }
-
     public void addFriend(String friendName) {
         discoveryModel.addFriend(friendName, new CallBack<String>() {
             @Override

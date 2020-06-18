@@ -65,7 +65,6 @@ public class MeFragment extends BaseFragment<MePresenter> implements MeView {
 
                 break;
             case R.id.cl_map:
-                startActivity(new Intent(getActivity(), MapActivity.class));
                 break;
             case R.id.btn_logout:
                 logout();

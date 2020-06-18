@@ -27,11 +27,6 @@ public class LoginPresenter extends BasePresenter<LoginView> {
         models.add(loginModel);
     }
 
-    @Override
-    public void initData() {
-
-    }
-
     public void login(String name, String psw) {
 //        loginModel.login(name, psw, new CallBack<LoginBean>() {
 //            @Override

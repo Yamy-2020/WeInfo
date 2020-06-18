@@ -1,5 +1,6 @@
 package com.hyphenate.easeui.ui;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -40,8 +41,15 @@ import com.baidu.mapapi.walknavi.adapter.IWEngineInitListener;
 import com.baidu.mapapi.walknavi.adapter.IWRoutePlanListener;
 import com.baidu.mapapi.walknavi.model.WalkRoutePlanError;
 import com.baidu.mapapi.walknavi.params.WalkNaviLaunchParam;
+import com.hyphenate.EMMessageListener;
+import com.hyphenate.chat.EMClient;
+import com.hyphenate.chat.EMCmdMessageBody;
+import com.hyphenate.chat.EMMessage;
+import com.hyphenate.chat.EMMessageBody;
 import com.hyphenate.easeui.R;
 import com.hyphenate.easeui.baidumap.PoiOverlay;
+
+import java.util.List;
 
 /**
  * 定位问题：
@@ -49,6 +57,18 @@ import com.hyphenate.easeui.baidumap.PoiOverlay;
  * 2.模拟器
  * 3.没开定位
  * 4.设备问题
+ * <p>
+ * 定位到了几内亚湾:
+ * 1.签名文件没有配置
+ * 2.位置信息开关没开
+ * 3.你用了模拟器
+ * 4.设备有问题
+ * <p>
+ * 定位到了几内亚湾:
+ * 1.签名文件没有配置
+ * 2.位置信息开关没开
+ * 3.你用了模拟器
+ * 4.设备有问题
  * <p>
  * 定位到了几内亚湾:
  * 1.签名文件没有配置
@@ -89,12 +109,20 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
     private EditText et;
     private Button btnSearch;
     private PoiSearch poiSearch = PoiSearch.newInstance();
-//    private MapView mMapView;
+    private String friend;
+
+    //    private MapView mMapView;
+    public static void startAct(Context context, String friend) {
+        Intent intent = new Intent(context, MapActivity.class);
+        intent.putExtra("data", friend);
+        context.startActivity(intent);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
+        friend = getIntent().getStringExtra("data");
         initView();
 //        BaiduMapOptions options = new BaiduMapOptions();
 //        options.mapType(18);
@@ -133,6 +161,8 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
                 return false;
             }
         });
+        //注册监听去接收消息
+        EMClient.getInstance().chatManager().addMessageListener(msgListener);
     }
 
     private void walkNavi(final LatLng start, final LatLng end) {
@@ -153,6 +183,7 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
                     }
                 });
     }
+
     //发起算路
     private void routeWalkPlanWithParam(LatLng start, LatLng end) {
         //起终点位置
@@ -180,6 +211,7 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
         });
 
     }
+
     private void addMarker(LatLng latLng) {
         //定义Maker坐标点
         //构建Marker图标
@@ -228,9 +260,9 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
     public void onClick(View v) {
         //easeUi作为library不允许使用switch
         int id = v.getId();
-        if (R.id.btn_locate ==id ) {
+        if (R.id.btn_locate == id) {
             goLatLng(userLatLng);
-        }else if (R.id.btn_search ==id ) {
+        } else if (R.id.btn_search == id) {
             search();
         }
     }
@@ -278,7 +310,7 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
                 //将poiOverlay添加至地图并缩放至合适级别
                 poiOverlay.addToMap();
                 poiOverlay.zoomToSpan();
-            }else {
+            } else {
                 Toast.makeText(MapActivity.this, "未搜索到内容", Toast.LENGTH_SHORT).show();
             }
         }
@@ -317,8 +349,70 @@ public class MapActivity extends AppCompatActivity implements View.OnClickListen
             //location.getLongitude()经度
             userLatLng = new LatLng(location.getLatitude(), location.getLongitude());
             mBaiduMap.setMyLocationData(locData);
+            sendLocationMsg(location.getLatitude(), location.getLongitude());
         }
     }
+    //定位到自己位置之后发送给好友
+    private void sendLocationMsg(double latitude, double longitude) {
+        EMMessage sendMessage = EMMessage.createSendMessage(EMMessage.Type.CMD);
+        String string = "share," + latitude + "," + longitude;
+        EMCmdMessageBody emCmdMessageBody = new EMCmdMessageBody(string);
+        sendMessage.setTo(friend);
+        sendMessage.addBody(emCmdMessageBody);
+        EMClient.getInstance().chatManager().sendMessage(sendMessage);
+    }
+
+    //注册监听
+    EMMessageListener msgListener = new EMMessageListener() {
+
+        @Override
+        public void onMessageReceived(List<EMMessage> messages) {
+            //收到消息
+        }
+
+        @Override
+        public void onCmdMessageReceived(List<EMMessage> messages) {
+            //收到透传消息
+            for (int i = 0; i < messages.size(); i++) {
+                EMMessage emMessage = messages.get(i);
+                EMCmdMessageBody body = (EMCmdMessageBody) emMessage.getBody();
+//                String action="share,"+latitude+","+longitude;
+                String action = body.action();
+                String[] split = action.split(",");
+                if (split != null && split.length == 3) {
+                    if ("share".equals(split[0])) {
+                        double latitude = Double.valueOf(split[1]);
+                        double longitude = Double.valueOf(split[2]);
+                        LatLng latLng = new LatLng(latitude, longitude);
+                        mBaiduMap.clear();
+                        BitmapDescriptor end = BitmapDescriptorFactory.fromResource(R.drawable.icon_end);
+                        OverlayOptions icon = new MarkerOptions().position(latLng).icon(end);
+                        mBaiduMap.addOverlay(icon);
+                    }
+                }
+            }
+        }
+
+        @Override
+        public void onMessageRead(List<EMMessage> messages) {
+            //收到已读回执
+        }
+
+        @Override
+        public void onMessageDelivered(List<EMMessage> message) {
+            //收到已送达回执
+        }
+
+        @Override
+        public void onMessageRecalled(List<EMMessage> messages) {
+            //消息被撤回
+        }
+
+        @Override
+        public void onMessageChanged(EMMessage message, Object change) {
+            //消息状态变动
+        }
+    };
 
     private void goLatLng(LatLng latLng) {
         if (latLng != null) {

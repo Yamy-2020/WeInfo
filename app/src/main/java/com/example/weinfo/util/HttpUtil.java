@@ -4,6 +4,8 @@ import android.util.Log;
 import com.example.weinfo.base.Constants;
 import com.example.weinfo.net.ApiService;
 import com.example.weinfo.net.LoginService;
+import com.example.weinfo.net.WanService;
+import com.example.weinfo.net.ZhiHuService;
 
 import java.io.File;
 import java.io.IOException;
@@ -240,6 +242,32 @@ public class HttpUtil {
             }
         }
         return mLoginService;
+    }
+    volatile ZhiHuService mZhiHuService;
+    public ZhiHuService getZhiHuService(){
+        if (mZhiHuService == null){
+            synchronized (HttpUtil.class){
+                if (mZhiHuService == null){
+                    mZhiHuService = mRetrofitBuilder.baseUrl(ZhiHuService.sBaseUrl)
+                            .build()
+                            .create(ZhiHuService.class);
+                }
+            }
+        }
+        return mZhiHuService;
+    }
+    volatile WanService mWanService;
+    public WanService getWanService(){
+        if (mWanService == null){
+            synchronized (HttpUtil.class){
+                if (mWanService == null){
+                    mWanService = mRetrofitBuilder.baseUrl(WanService.sUrl)
+                            .build()
+                            .create(WanService.class);
+                }
+            }
+        }
+        return mWanService;
     }
     //简单的日志拦截器
     class SimpleLogInterceptor implements Interceptor {

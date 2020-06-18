@@ -25,7 +25,6 @@ public class MainPresenter extends BasePresenter<MainView> {
         models.add(mainModel);
     }
 
-    @Override
     public void initData() {
         mainModel.initData(new CallBack<Map<String, EaseUser>>() {
             @Override
@@ -39,5 +38,4 @@ public class MainPresenter extends BasePresenter<MainView> {
             }
         });
     }
-
 }

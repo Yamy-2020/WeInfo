@@ -4,11 +4,14 @@ import android.app.ActivityManager;
 import android.app.Application;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.database.sqlite.SQLiteDatabase;
 import android.support.multidex.MultiDex;
 import android.util.Log;
 
 import com.baidu.mapapi.CoordType;
 import com.baidu.mapapi.SDKInitializer;
+import com.example.weinfo.db.DaoMaster;
+import com.example.weinfo.db.DaoSession;
 import com.example.weinfo.util.LogUtil;
 import com.hyphenate.chat.EMClient;
 import com.hyphenate.chat.EMOptions;
@@ -24,6 +27,9 @@ import java.util.List;
 //如果仅仅是activity销毁了,不一定走
 //Android 系统为了提高app启动的速度,在界面销毁之后,进程不会被杀死, 而是变成一个空进程
 public class BaseApp extends Application {
+    private DaoMaster.DevOpenHelper mHelper;
+    private DaoMaster mDaoMaster;
+    private DaoSession mDaoSession;
     public static BaseApp sContext;
 
     public static Resources getRes() {
@@ -38,6 +44,7 @@ public class BaseApp extends Application {
         initUmeng();
         initEasemob();
         initMap();
+        setDatabase();
     }
 
     private void initMap() {
@@ -118,5 +125,13 @@ public class BaseApp extends Application {
     public static BaseApp getInstance() {
         return sContext;
     }
-
+    private void setDatabase() {
+        mHelper = new DaoMaster.DevOpenHelper(this, "mydb", null);
+        SQLiteDatabase db = mHelper.getWritableDatabase();
+        mDaoMaster = new DaoMaster(db);
+        mDaoSession=mDaoMaster.newSession();
+    }
+    public DaoSession getDaoSession(){
+        return mDaoSession;
+    }
 }
