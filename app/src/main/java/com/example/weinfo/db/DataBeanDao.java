@@ -15,7 +15,7 @@ import com.example.weinfo.bean.DataBean;
 /** 
  * DAO for table "DATA_BEAN".
 */
-public class DataBeanDao extends AbstractDao<DataBean, Integer> {
+public class DataBeanDao extends AbstractDao<DataBean, String> {
 
     public static final String TABLENAME = "DATA_BEAN";
 
@@ -25,13 +25,14 @@ public class DataBeanDao extends AbstractDao<DataBean, Integer> {
      */
     public static class Properties {
         public final static Property CourseId = new Property(0, int.class, "courseId", false, "COURSE_ID");
-        public final static Property Id = new Property(1, int.class, "id", true, "ID");
-        public final static Property Name = new Property(2, String.class, "name", false, "NAME");
+        public final static Property Id = new Property(1, int.class, "id", false, "ID");
+        public final static Property Name = new Property(2, String.class, "name", true, "NAME");
         public final static Property Order = new Property(3, int.class, "order", false, "ORDER");
         public final static Property ParentChapterId = new Property(4, int.class, "parentChapterId", false, "PARENT_CHAPTER_ID");
         public final static Property UserControlSetTop = new Property(5, boolean.class, "userControlSetTop", false, "USER_CONTROL_SET_TOP");
         public final static Property Visible = new Property(6, int.class, "visible", false, "VISIBLE");
         public final static Property IsInterested = new Property(7, boolean.class, "isInterested", false, "IS_INTERESTED");
+        public final static Property Index = new Property(8, int.class, "index", false, "INDEX");
     }
 
 
@@ -48,13 +49,14 @@ public class DataBeanDao extends AbstractDao<DataBean, Integer> {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "\"DATA_BEAN\" (" + //
                 "\"COURSE_ID\" INTEGER NOT NULL ," + // 0: courseId
-                "\"ID\" INTEGER PRIMARY KEY NOT NULL ," + // 1: id
-                "\"NAME\" TEXT," + // 2: name
+                "\"ID\" INTEGER NOT NULL ," + // 1: id
+                "\"NAME\" TEXT PRIMARY KEY NOT NULL ," + // 2: name
                 "\"ORDER\" INTEGER NOT NULL ," + // 3: order
                 "\"PARENT_CHAPTER_ID\" INTEGER NOT NULL ," + // 4: parentChapterId
                 "\"USER_CONTROL_SET_TOP\" INTEGER NOT NULL ," + // 5: userControlSetTop
                 "\"VISIBLE\" INTEGER NOT NULL ," + // 6: visible
-                "\"IS_INTERESTED\" INTEGER NOT NULL );"); // 7: isInterested
+                "\"IS_INTERESTED\" INTEGER NOT NULL ," + // 7: isInterested
+                "\"INDEX\" INTEGER NOT NULL );"); // 8: index
     }
 
     /** Drops the underlying database table. */
@@ -78,6 +80,7 @@ public class DataBeanDao extends AbstractDao<DataBean, Integer> {
         stmt.bindLong(6, entity.getUserControlSetTop() ? 1L: 0L);
         stmt.bindLong(7, entity.getVisible());
         stmt.bindLong(8, entity.getIsInterested() ? 1L: 0L);
+        stmt.bindLong(9, entity.getIndex());
     }
 
     @Override
@@ -95,11 +98,12 @@ public class DataBeanDao extends AbstractDao<DataBean, Integer> {
         stmt.bindLong(6, entity.getUserControlSetTop() ? 1L: 0L);
         stmt.bindLong(7, entity.getVisible());
         stmt.bindLong(8, entity.getIsInterested() ? 1L: 0L);
+        stmt.bindLong(9, entity.getIndex());
     }
 
     @Override
-    public Integer readKey(Cursor cursor, int offset) {
-        return cursor.getInt(offset + 1);
+    public String readKey(Cursor cursor, int offset) {
+        return cursor.isNull(offset + 2) ? null : cursor.getString(offset + 2);
     }    
 
     @Override
@@ -112,7 +116,8 @@ public class DataBeanDao extends AbstractDao<DataBean, Integer> {
             cursor.getInt(offset + 4), // parentChapterId
             cursor.getShort(offset + 5) != 0, // userControlSetTop
             cursor.getInt(offset + 6), // visible
-            cursor.getShort(offset + 7) != 0 // isInterested
+            cursor.getShort(offset + 7) != 0, // isInterested
+            cursor.getInt(offset + 8) // index
         );
         return entity;
     }
@@ -127,17 +132,18 @@ public class DataBeanDao extends AbstractDao<DataBean, Integer> {
         entity.setUserControlSetTop(cursor.getShort(offset + 5) != 0);
         entity.setVisible(cursor.getInt(offset + 6));
         entity.setIsInterested(cursor.getShort(offset + 7) != 0);
+        entity.setIndex(cursor.getInt(offset + 8));
      }
     
     @Override
-    protected final Integer updateKeyAfterInsert(DataBean entity, long rowId) {
-        return entity.getId();
+    protected final String updateKeyAfterInsert(DataBean entity, long rowId) {
+        return entity.getName();
     }
     
     @Override
-    public Integer getKey(DataBean entity) {
+    public String getKey(DataBean entity) {
         if(entity != null) {
-            return entity.getId();
+            return entity.getName();
         } else {
             return null;
         }
@@ -145,7 +151,7 @@ public class DataBeanDao extends AbstractDao<DataBean, Integer> {
 
     @Override
     public boolean hasKey(DataBean entity) {
-        throw new UnsupportedOperationException("Unsupported for entities with a non-null key");
+        return entity.getName() != null;
     }
 
     @Override

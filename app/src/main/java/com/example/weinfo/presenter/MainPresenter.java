@@ -29,6 +29,9 @@ public class MainPresenter extends BasePresenter<MainView> {
         mainModel.initData(new CallBack<Map<String, EaseUser>>() {
             @Override
             public void onSuccess(Map<String, EaseUser> stringEaseUserMap) {
+                if (mView != null) {
+                    mView.setData(stringEaseUserMap);
+                }
                 mView.setData(stringEaseUserMap);
             }
 

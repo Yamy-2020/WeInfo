@@ -19,18 +19,19 @@ public class DataBean implements Serializable {
          */
         public static final long serialVersionUID = 1L;
         private int courseId;
-        @Id
         private int id;
+        @Id
         private String name;
         private int order;
         private int parentChapterId;
         private boolean userControlSetTop;
         private int visible;
         private boolean isInterested=true;
-        @Generated(hash = 1390033626)
+        private int index;
+        @Generated(hash = 1470721578)
         public DataBean(int courseId, int id, String name, int order,
                 int parentChapterId, boolean userControlSetTop, int visible,
-                boolean isInterested) {
+                boolean isInterested, int index) {
             this.courseId = courseId;
             this.id = id;
             this.name = name;
@@ -39,6 +40,7 @@ public class DataBean implements Serializable {
             this.userControlSetTop = userControlSetTop;
             this.visible = visible;
             this.isInterested = isInterested;
+            this.index = index;
         }
         @Generated(hash = 908697775)
         public DataBean() {
@@ -91,5 +93,11 @@ public class DataBean implements Serializable {
         public void setIsInterested(boolean isInterested) {
             this.isInterested = isInterested;
         }
-        
-    }
+        public int getIndex() {
+            return this.index;
+        }
+        public void setIndex(int index) {
+            this.index = index;
+        }
+       
+}

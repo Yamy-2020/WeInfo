@@ -12,8 +12,10 @@ import android.widget.TextView;
 
 import com.example.weinfo.R;
 import com.example.weinfo.adapter.NavigationAdapter;
+import com.example.weinfo.base.BaseApp;
 import com.example.weinfo.base.BaseSubscriber;
 import com.example.weinfo.bean.NaviBean;
+import com.example.weinfo.db.DataBeanDao;
 import com.example.weinfo.util.HttpUtil;
 import com.example.weinfo.util.RxUtils;
 

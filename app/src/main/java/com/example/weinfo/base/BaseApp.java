@@ -27,6 +27,7 @@ import java.util.List;
 //如果仅仅是activity销毁了,不一定走
 //Android 系统为了提高app启动的速度,在界面销毁之后,进程不会被杀死, 而是变成一个空进程
 public class BaseApp extends Application {
+    public static int mMode;
     private DaoMaster.DevOpenHelper mHelper;
     private DaoMaster mDaoMaster;
     private DaoSession mDaoSession;

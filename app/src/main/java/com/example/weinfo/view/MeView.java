@@ -8,4 +8,5 @@ import com.example.weinfo.base.BaseView;
  * 创建时间：2020/6/13   20:33
  **/
 public interface MeView extends BaseView {
+    void logoutSuccess();
 }

@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.AppCompatDelegate;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -13,10 +15,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.weinfo.base.BaseActivity;
+import com.example.weinfo.base.Constants;
 import com.example.weinfo.presenter.MainPresenter;
 import com.example.weinfo.ui.activity.ChatActivity;
 import com.example.weinfo.ui.fragment.DiscoveryFragment;
 import com.example.weinfo.ui.fragment.MeFragment;
+import com.example.weinfo.util.SpUtil;
+import com.example.weinfo.util.UiModeUtil;
 import com.example.weinfo.view.MainView;
 import com.hyphenate.chat.EMConversation;
 import com.hyphenate.easeui.EaseConstant;
@@ -74,6 +79,8 @@ public class MainActivity extends BaseActivity<MainPresenter> implements MainVie
 
     @Override
     protected void initView() {
+//        int mode = (int) SpUtil.getParam(Constants.MODE, AppCompatDelegate.MODE_NIGHT_NO);
+        UiModeUtil.setActModeFromSp(this);
         mTabs = new Button[4];
         mTabs[0] = btnConversation;
         mTabs[1] = btnAddressList;
@@ -190,5 +197,11 @@ public class MainActivity extends BaseActivity<MainPresenter> implements MainVie
                 contactListFragment.setContactsMap(contacts);
             }
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
     }
 }

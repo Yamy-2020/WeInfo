@@ -41,7 +41,7 @@ android {
         }
     }
     greendao{
-        schemaVersion 1
+        schemaVersion 3
         daoPackage 'com.example.weinfo.db'
         targetGenDir 'src/main/java'
     }

@@ -12,9 +12,11 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 
 import com.example.weinfo.R;
 import com.example.weinfo.adapter.ItInfoManagerAdapter;
+import com.example.weinfo.base.BaseApp;
 import com.example.weinfo.base.Constants;
 import com.example.weinfo.bean.DataBean;
 import com.example.weinfo.bean.ItInfoTabBean;
+import com.example.weinfo.db.DataBeanDao;
 import com.example.weinfo.util.ItemTouchHelperCallBack;
 
 import java.util.ArrayList;
@@ -30,7 +32,7 @@ public class ItInfoManagerActivity extends AppCompatActivity {
     public static void startAct(Activity activity, ArrayList<DataBean> list) {
         Intent intent = new Intent(activity, ItInfoManagerActivity.class);
         intent.putExtra(Constants.DATA, list);
-        activity.startActivityForResult(intent,100);
+        activity.startActivityForResult(intent, 100);
     }
 
     @Override
@@ -39,6 +41,7 @@ public class ItInfoManagerActivity extends AppCompatActivity {
         setContentView(R.layout.activity_it_info_manager);
         initView();
     }
+
     /**
      * 全量刷新
      * 我们平常使用RecyclerView适配器刷新时一般使用:notifyDataSetChanged();
@@ -75,10 +78,19 @@ public class ItInfoManagerActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
+        for (int i = 0; i <list.size() ; i++) {
+            list.get(i).setIndex(i);
+        }
+        saveData();
         Intent intent = new Intent();
-        intent.putExtra(Constants.DATA,list);
-        setResult(RESULT_OK,intent);
+        intent.putExtra(Constants.DATA, list);
+        setResult(RESULT_OK, intent);
 //        finish();
         super.onBackPressed();
+    }
+
+    private void saveData() {
+        DataBeanDao dao = BaseApp.getInstance().getDaoSession().getDataBeanDao();
+        dao.insertOrReplaceInTx(list);
     }
 }

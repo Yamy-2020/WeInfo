@@ -12,4 +12,5 @@ public interface BaseView {
 
     //隐藏loading
     void hideLoading();
+
 }

@@ -81,12 +81,6 @@ public class DiscoveryFragment extends BaseFragment<DiscoveryPresenter> implemen
 
     }
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        unbinder.unbind();
-    }
-
     @OnClick({R.id.iv_add_friend, R.id.iv_create_group, R.id.iv_add_group, R.id.cl_zhihu, R.id.cl_it_info, R.id.cl_tencent})
     public void onViewClicked(View view) {
         switch (view.getId()) {

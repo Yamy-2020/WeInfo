@@ -27,7 +27,7 @@ public abstract class BasePresenter<V extends BaseView> {
     }
 
     public void destroy() {
-        mView = null;
+//        mView = null;
         for (int i = 0; i < models.size(); i++) {
             BaseModel baseModel = models.get(i);
             baseModel.destory();
